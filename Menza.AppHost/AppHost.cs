@@ -11,4 +11,6 @@ builder.AddProject<Projects.Menza_Meals_Manager>("dbmanager")
     .WithHttpCommand("reset-db", "Reset")
     .WaitFor(database);
 
+Console.WriteLine("test");
+
 builder.Build().Run();
