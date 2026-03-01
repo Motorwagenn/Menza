@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Menza.ServiceDefaults\Menza.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Menza.ServiceDefaults\Minute.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Menza_Meals_Db\UTB.Minute.Db.csproj" />
   </ItemGroup>
 
