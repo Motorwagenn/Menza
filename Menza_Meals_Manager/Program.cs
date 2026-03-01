@@ -1,4 +1,4 @@
-using Menza_Meals_Db;
+using UTB.Minute.Db;
 
 var builder = WebApplication.CreateBuilder(args);
 

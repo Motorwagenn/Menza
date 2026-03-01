@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Menza.AppHost/UTB.Minute.AppHost.csproj" />
+  <Project Path="Menza.ServiceDefaults/Menza.ServiceDefaults.csproj" />
+  <Project Path="Menza_Meals_Db/UTB.Minute.Db.csproj" />
+  <Project Path="Menza_Meals_Manager/UTB.Minute.DbManager.csproj" />
+  <Project Path="UTB.Minute.WebApi/UTB.Minute.WebApi.csproj" />
+</Solution>

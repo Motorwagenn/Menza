@@ -1,4 +1,4 @@
-﻿namespace Menza_Meals_Db
+﻿namespace UTB.Minute.Db
 {
     public class Meal
     {

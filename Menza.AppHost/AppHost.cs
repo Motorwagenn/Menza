@@ -6,9 +6,11 @@ var sql = builder.AddSqlServer("sql")
 
 var database = sql.AddDatabase("database");
 
-builder.AddProject<Projects.Menza_Meals_Manager>("dbmanager")
+builder.AddProject<Projects.UTB_Minute_DbManager>("dbmanager")
     .WithReference(database)
     .WithHttpCommand("reset-db", "Reset")
     .WaitFor(database);
+
+builder.AddProject<Projects.UTB_Minute_WebApi>("utb-minute-webapi");
 
 builder.Build().Run();

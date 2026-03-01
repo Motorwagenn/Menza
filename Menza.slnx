@@ -1,6 +1,0 @@
-<Solution>
-  <Project Path="Menza.AppHost/Menza.AppHost.csproj" />
-  <Project Path="Menza.ServiceDefaults/Menza.ServiceDefaults.csproj" />
-  <Project Path="Menza_Meals_Db/Menza_Meals_Db.csproj" />
-  <Project Path="Menza_Meals_Manager/Menza_Meals_Manager.csproj" />
-</Solution>
