@@ -1,6 +1,6 @@
-@Menza_Meals_Manager_HostAddress = http://localhost:5289
+@UTB.Minute.DbManager_HostAddress = http://localhost:5289
 
-GET {{Menza_Meals_Manager_HostAddress}}/weatherforecast/
+GET {{UTB.Minute.DbManager_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
