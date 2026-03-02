@@ -1,6 +1,6 @@
 <Solution>
-  <Project Path="Menza.AppHost/UTB.Minute.AppHost.csproj" />
-  <Project Path="Menza.ServiceDefaults/Minute.ServiceDefaults.csproj" />
+  <Project Path="UTB.Minute.AppHost/UTB.Minute.AppHost.csproj" />
+  <Project Path="Minute.ServiceDefaults/Minute.ServiceDefaults.csproj" />
   <Project Path="UTB.Minute.Db/UTB.Minute.Db.csproj" />
   <Project Path="UTB.Minute.DbManager/UTB.Minute.DbManager.csproj" />
   <Project Path="UTB.Minute.Contracts/UTB.Minute.Contracts.csproj" Id="45ec46e1-a91f-4bb7-a2eb-4ebdca903446" />
