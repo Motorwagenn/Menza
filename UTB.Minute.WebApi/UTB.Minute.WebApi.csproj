@@ -11,9 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Menza.ServiceDefaults\Minute.ServiceDefaults.csproj" />
-    <ProjectReference Include="..\Menza_Meals_Db\UTB.Minute.Db.csproj" />
-    <ProjectReference Include="..\Menza_Meals_Manager\UTB.Minute.DbManager.csproj" />
+    <ProjectReference Include="..\Minute.ServiceDefaults\Minute.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\UTB.Minute.Db\UTB.Minute.Db.csproj" />
+    <ProjectReference Include="..\UTB.Minute.DbManager\UTB.Minute.DbManager.csproj" />
     <ProjectReference Include="..\UTB.Minute.Contracts\UTB.Minute.Contracts.csproj" />
   </ItemGroup>
 
