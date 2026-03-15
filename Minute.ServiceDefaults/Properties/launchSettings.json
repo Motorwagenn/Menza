@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Minute.ServiceDefaults": {
+      "commandName": "Project"
+    },
+    "Profil 1": {
+      "commandName": "Executable"
+    }
+  }
+}

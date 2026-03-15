@@ -11,6 +11,10 @@ builder.AddProject<Projects.UTB_Minute_DbManager>("dbmanager")
     .WithHttpCommand("reset-db", "Reset")
     .WaitFor(database);
 
-builder.AddProject<Projects.UTB_Minute_WebApi>("utb-minute-webapi");
+builder.AddProject<Projects.UTB_Minute_WebApi>("utb-minute-webapi")
+    .WithReference(database)
+    .WaitFor(database);
+    
+
 
 builder.Build().Run();
