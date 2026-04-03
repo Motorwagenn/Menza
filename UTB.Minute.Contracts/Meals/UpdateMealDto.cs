@@ -1,5 +1,4 @@
-﻿
-namespace UTB.Minute.Contracts
+﻿namespace UTB.Minute.Contracts.Meals
 {
     public record UpdateMealDto(string Name, string Description, bool IsActive);
 

@@ -10,4 +10,8 @@
     <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.1.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\UTB.Minute.Contracts\UTB.Minute.Contracts.csproj" />
+  </ItemGroup>
+
 </Project>

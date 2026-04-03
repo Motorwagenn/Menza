@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using UTB.Minute.Db.Enums;
+using UTB.Minute.Contracts.Enums;
 
 namespace UTB.Minute.Db.Entities
 {
