@@ -21,19 +21,19 @@ app.MapDefaultEndpoints();
 
 app.UseHttpsRedirection();
 
-//endpointy pro meal managment
+//endpoints meal managment
 app.MapPost("/meals", MealEndpoints.CreateMeal);
 app.MapGet("/meals", MealEndpoints.GetMeals);
 app.MapGet("/meals/{id}", MealEndpoints.GetMeal);
 app.MapGet("/meals/active", MealEndpoints.GetActiveMeals);
 app.MapPut("/meals/{id}", MealEndpoints.UpdateMeal);
 app.MapDelete("/meals/{id}", MealEndpoints.DeactivateMeal);
-//endopinty pro orders 
+//endopints orders 
 app.MapPost("/orders", OrderEndpoints.CreateOrder);
 app.MapGet("/orders", OrderEndpoints.GetOrders);
 app.MapPut("/orders/{id}/status", OrderEndpoints.UpdateOrderStatus);
 app.MapGet("/orders/{id}", OrderEndpoints.GetOrder);
-//endpointy pro menu
+//endpoints menu
 app.MapGet("/menu", MenuEndpoints.GetMenuItems);
 app.MapPost("/menu", MenuEndpoints.CreateMenuItem);
 app.MapGet("/menu/{id}", MenuEndpoints.GetMenuItem);
@@ -45,9 +45,9 @@ app.Run();
 
 public static class MealEndpoints
 {
-    //CRUD metody
+    //CRUD methods
 
-    public static async Task<Created<MealDto>> CreateMeal(CreateMealDto dto,MinuteDbContext context)
+    public static async Task<Created<MealDto>> CreateMeal(CreateMealDto dto, MinuteDbContext context)
     {
         Meal meal = new()
         {
@@ -71,7 +71,7 @@ public static class MealEndpoints
 
         return TypedResults.Ok(meals);
     }
-    public static async Task<Results<Ok<MealDto>, NotFound>> UpdateMeal(int id,UpdateMealDto dto,MinuteDbContext context)
+    public static async Task<Results<Ok<MealDto>, NotFound>> UpdateMeal(int id, UpdateMealDto dto, MinuteDbContext context)
     {
         var meal = await context.Meals.FindAsync(id);
         if (meal == null) return TypedResults.NotFound();
@@ -133,7 +133,7 @@ public static class OrderEndpoints
         if (menuItem.PortionsAvailable <= 0)
             return TypedResults.BadRequest();
 
-        // snizeni porci
+        // lowering portions
         menuItem.PortionsAvailable--;
 
         var order = new Order
@@ -174,7 +174,7 @@ public static class OrderEndpoints
 
         return TypedResults.Ok(orders);
     }
-    
+
     public static async Task<Results<Ok<OrderDto>, NotFound>> UpdateOrderStatus(
     int id,
     UpdateOrderStatusDto dto,
@@ -302,7 +302,7 @@ public static class MenuEndpoints
 
         await context.SaveChangesAsync();
 
-        
+
         var meal = await context.Meals.FindAsync(menuItem.MealId);
 
         var result = new MenuItemDto(

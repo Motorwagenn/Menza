@@ -5,7 +5,7 @@ using UTB.Minute.Contracts.Meals;
 using UTB.Minute.Db.Entities;
 using Xunit;
 
-namespace UTB.Minute.Tests;
+namespace UTB.Minute.WebApi.Tests;
 
 [Collection("Api collection")]
 public class MealEndpointsTests : IClassFixture<TestFixture>

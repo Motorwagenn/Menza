@@ -6,7 +6,7 @@ using UTB.Minute.Contracts.Orders;
 using UTB.Minute.Db.Entities;
 using Xunit;
 
-namespace UTB.Minute.Tests;
+namespace UTB.Minute.WebApi.Tests;
 
 [Collection("Api collection")]
 public class OrderEndpointsTests : IClassFixture<TestFixture>

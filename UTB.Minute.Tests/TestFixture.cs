@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using UTB.Minute.Db;
 using Xunit;
 
-namespace UTB.Minute.Tests;
+namespace UTB.Minute.WebApi.Tests;
 
 public class TestFixture : IAsyncLifetime
 {

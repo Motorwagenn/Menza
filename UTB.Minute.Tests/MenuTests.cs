@@ -4,7 +4,7 @@ using UTB.Minute.Contracts.Menu;
 using UTB.Minute.Db.Entities;
 using Xunit;
 
-namespace UTB.Minute.Tests;
+namespace UTB.Minute.WebApi.Tests;
 
 [Collection("Api collection")]
 public class MenuEndpointsTests : IClassFixture<TestFixture>
