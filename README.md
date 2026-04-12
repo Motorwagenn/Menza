@@ -1,15 +1,13 @@
 [readme.md](https://github.com/user-attachments/files/26660003/readme.md)
 # Canteen Ordering System (UTB Minute)
 
-Semester project for the **Application Frameworks** course.
-
 ## Team Members and Work Ratio
 
 | Name | Role | Work Ratio |
 | --- | --- | --- |
-| **Matúš Šipoš** - lead | veci co robil | 1 |
-| **Meno2** | veci co robil | 1 |
-| **Meno3** | veci co robil | 1 |
+| **Šipoš** | Lead, Project Setup | 1 |
+| **Novák** | Aspire integration, WebApi | 1 |
+| **Hlavička** | Tests | 1 |
 
 ---
 
@@ -33,7 +31,7 @@ Semester project for the **Application Frameworks** course.
 * `UTB.Minute.DbManager` — Exposes a `/reset-db` endpoint used by the Aspire HTTP Command to drop, recreate, and seed the database with test data.
 * `UTB.Minute.Contracts` — Shared DTOs and the `OrderStatus` enum. Referenced by both WebAPI and Tests; entities are never exposed directly to clients.
 * `UTB.Minute.WebApi` — Minimal WebAPI with all business logic. Uses `TypedResults` throughout.
-* `UTB.Minute.Tests` — Integration tests running against a real SQL Server instance spun up via Aspire.
+* `UTB.Minute.WebApi.Tests` — Integration tests running against a real SQL Server instance spun up via Aspire.
 
 ---
 
