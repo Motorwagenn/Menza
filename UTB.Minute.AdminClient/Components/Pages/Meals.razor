@@ -1,0 +1,124 @@
+﻿@page "/meals"
+@using UTB.Minute.Contracts.Meals
+@using UTB.Minute.AdminClient
+@using System.ComponentModel.DataAnnotations
+@inject AdminService AdminService
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<h3>Meals</h3>
+
+<button class="btn btn-primary mb-3" @onclick="StartCreate">+ New Meal</button>
+
+@if (meals is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    @if (editingMeal is not null)
+    {
+        <div class="card p-3 mb-3">
+            <h5>@(editingMeal.Id == 0 ? "Create Meal" : "Edit Meal")</h5>
+            <EditForm Model="editingMeal" OnValidSubmit="SaveMeal">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="mb-2">
+                    <label>Name</label>
+                    <InputText class="form-control" @bind-Value="editingMeal!.Name" />
+                </div>
+                <div class="mb-2">
+                    <label>Description</label>
+                    <InputText class="form-control" @bind-Value="editingMeal!.Description" />
+                </div>
+                <div class="mb-2">
+                    <InputCheckbox @bind-Value="editingMeal!.IsActive" />
+                    <label>Active</label>
+                </div>
+                <button class="btn btn-success me-2">Save</button>
+                <button type="button" class="btn btn-secondary" @onclick="() => editingMeal = null">Cancel</button>
+            </EditForm>
+        </div>
+    }
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Active</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var meal in meals)
+            {
+                <tr>
+                    <td>@meal.Id</td>
+                    <td>@meal.Name</td>
+                    <td>@meal.Description</td>
+                    <td>@(meal.IsActive ? "Yes" : "No")</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1" @onclick="() => StartEdit(meal)">Edit</button>
+                        @if (meal.IsActive)
+                        {
+                            <button class="btn btn-sm btn-danger" @onclick="() => Deactivate(meal.Id)">Deactivate</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private MealDto[]? meals;
+    private MealEditModel? editingMeal;
+
+    protected override async Task OnInitializedAsync()
+    {
+        meals = await AdminService.GetMealsAsync();
+    }
+
+    private void StartCreate()
+    {
+        editingMeal = new MealEditModel();
+    }
+
+    private void StartEdit(MealDto meal)
+    {
+        editingMeal = new MealEditModel { Id = meal.Id, Name = meal.Name, Description = meal.Description, IsActive = meal.IsActive };
+    }
+
+    private async Task SaveMeal()
+    {
+        if (editingMeal is null) return;
+
+        if (editingMeal.Id == 0)
+            await AdminService.CreateMealAsync(new CreateMealDto(editingMeal.Name, editingMeal.Description));
+        else
+            await AdminService.UpdateMealAsync(editingMeal.Id, new UpdateMealDto(editingMeal.Name, editingMeal.Description, editingMeal.IsActive));
+
+        editingMeal = null;
+        meals = await AdminService.GetMealsAsync();
+    }
+
+    private async Task Deactivate(int id)
+    {
+        await AdminService.DeactivateMealAsync(id);
+        meals = await AdminService.GetMealsAsync();
+    }
+
+    private class MealEditModel
+    {
+        public int Id { get; set; }
+
+        [Required]
+        public string Name { get; set; } = "";
+
+        [Required]
+        public string Description { get; set; } = "";
+
+        public bool IsActive { get; set; } = true;
+    }
+}

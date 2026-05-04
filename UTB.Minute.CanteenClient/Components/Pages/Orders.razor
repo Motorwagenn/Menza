@@ -1,0 +1,73 @@
+﻿@page "/orders"
+@using UTB.Minute.Contracts.Orders
+@using UTB.Minute.Contracts.Enums
+@using UTB.Minute.CanteenClient
+@inject CanteenService CanteenService
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<h3>Orders</h3>
+
+@if (orders is null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (!orders.Any())
+{
+    <p>No active orders.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Meal</th>
+                <th>Status</th>
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in orders)
+            {
+                <tr>
+                    <td>@order.Id</td>
+                    <td>@order.MealName</td>
+                    <td>@order.Status</td>
+                    <td>@order.CreatedAt.ToLocalTime().ToString("g")</td>
+                    <td>
+                        @if (order.Status == OrderStatus.Preparing)
+                        {
+                            <button class="btn btn-sm btn-success me-1" @onclick="() => SetStatus(order.Id, OrderStatus.Ready)">Ready</button>
+                            <button class="btn btn-sm btn-danger me-1" @onclick="() => SetStatus(order.Id, OrderStatus.Cancelled)">Cancel</button>
+                        }
+                        @if (order.Status == OrderStatus.Ready || order.Status == OrderStatus.Cancelled)
+                        {
+                            <button class="btn btn-sm btn-secondary" @onclick="() => SetStatus(order.Id, OrderStatus.Completed)">Complete</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private OrderDto[]? orders;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrders();
+    }
+
+    private async Task LoadOrders()
+    {
+        orders = await CanteenService.GetOrdersAsync();
+    }
+
+    private async Task SetStatus(int id, OrderStatus status)
+    {
+        await CanteenService.UpdateOrderStatusAsync(id, new UpdateOrderStatusDto(status));
+        await LoadOrders();
+    }
+}

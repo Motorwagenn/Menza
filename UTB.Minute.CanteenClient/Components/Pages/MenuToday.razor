@@ -1,0 +1,75 @@
+﻿@page "/menu-today"
+@using UTB.Minute.Contracts.Menu
+@using UTB.Minute.Contracts.Orders
+@using UTB.Minute.CanteenClient
+@inject CanteenService CanteenService
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<h3>Today's Menu</h3>
+
+@if (menuItems is null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (!menuItems.Any())
+{
+    <p>No menu available for today.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Meal</th>
+                <th>Portions Available</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in menuItems)
+            {
+                bool soldOut = item.AvailablePortions <= 0;
+                <tr class="@(soldOut ? "table-secondary text-muted" : "")">
+                    <td>@item.MealName</td>
+                    <td>@(soldOut ? "Sold out" : item.AvailablePortions)</td>
+                    <td>
+                        @if (!soldOut)
+                        {
+                            <button class="btn btn-sm btn-primary" @onclick="() => Order(item.Id)">Order</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (message is not null)
+{
+    <div class="alert alert-info mt-2">@message</div>
+}
+
+@code {
+    private MenuItemDto[]? menuItems;
+    private string? message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMenu();
+    }
+
+    private async Task LoadMenu()
+    {
+        var all = await CanteenService.GetMenuItemsAsync();
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        menuItems = all?.Where(m => m.Date == today).ToArray();
+    }
+
+    private async Task Order(int menuItemId)
+    {
+        message = null;
+        await CanteenService.CreateOrderAsync(new CreateOrderDto(menuItemId));
+        message = "Order placed successfully.";
+        await LoadMenu();
+    }
+}
