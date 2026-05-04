@@ -1,0 +1,133 @@
+﻿@page "/menu"
+@using UTB.Minute.Contracts.Menu
+@using UTB.Minute.Contracts.Meals
+@using UTB.Minute.AdminClient
+@using System.ComponentModel.DataAnnotations
+@inject AdminService AdminService
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<h3>Menu</h3>
+
+<button class="btn btn-primary mb-3" @onclick="StartCreate">+ New Menu Item</button>
+
+@if (menuItems is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    @if (editingItem is not null)
+    {
+        <div class="card p-3 mb-3">
+            <h5>@(editingItem.Id == 0 ? "Create Menu Item" : "Edit Menu Item")</h5>
+            <EditForm Model="editingItem" OnValidSubmit="SaveItem">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="mb-2">
+                    <label>Date</label>
+                    <InputDate class="form-control" @bind-Value="editingItem!.Date" />
+                </div>
+                <div class="mb-2">
+                    <label>Meal</label>
+                    <InputSelect class="form-control" @bind-Value="editingItem!.MealId">
+                        @if (meals is not null)
+                        {
+                            @foreach (var meal in meals.Where(m => m.IsActive))
+                            {
+                                <option value="@meal.Id">@meal.Name</option>
+                            }
+                        }
+                    </InputSelect>
+                </div>
+                <div class="mb-2">
+                    <label>Portions Available</label>
+                    <InputNumber class="form-control" @bind-Value="editingItem!.AvailablePortions" />
+                </div>
+                <button class="btn btn-success me-2">Save</button>
+                <button type="button" class="btn btn-secondary" @onclick="() => editingItem = null">Cancel</button>
+            </EditForm>
+        </div>
+    }
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Date</th>
+                <th>Meal</th>
+                <th>Portions</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in menuItems)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Date.ToShortDateString()</td>
+                    <td>@item.MealName</td>
+                    <td>@item.AvailablePortions</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1" @onclick="() => StartEdit(item)">Edit</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteItem(item.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private MenuItemDto[]? menuItems;
+    private MealDto[]? meals;
+    private MenuItemEditModel? editingItem;
+
+    protected override async Task OnInitializedAsync()
+    {
+        menuItems = await AdminService.GetMenuItemsAsync();
+        meals = await AdminService.GetMealsAsync();
+    }
+
+    private void StartCreate()
+    {
+        editingItem = new MenuItemEditModel { Date = DateOnly.FromDateTime(DateTime.Today) };
+    }
+
+    private void StartEdit(MenuItemDto item)
+    {
+        editingItem = new MenuItemEditModel { Id = item.Id, Date = item.Date, MealId = item.MealId, AvailablePortions = item.AvailablePortions };
+    }
+
+    private async Task SaveItem()
+    {
+        if (editingItem is null) return;
+
+        if (editingItem.Id == 0)
+            await AdminService.CreateMenuItemAsync(new CreateMenuItemDto(editingItem.Date, editingItem.MealId, editingItem.AvailablePortions));
+        else
+            await AdminService.UpdateMenuItemAsync(editingItem.Id, new UpdateMenuItemDto(editingItem.Date, editingItem.MealId, editingItem.AvailablePortions));
+
+        editingItem = null;
+        menuItems = await AdminService.GetMenuItemsAsync();
+    }
+
+    private async Task DeleteItem(int id)
+    {
+        await AdminService.DeleteMenuItemAsync(id);
+        menuItems = await AdminService.GetMenuItemsAsync();
+    }
+
+    private class MenuItemEditModel
+    {
+        public int Id { get; set; }
+
+        [Required]
+        public DateOnly Date { get; set; }
+
+        [Required]
+        public int MealId { get; set; }
+
+        [Range(1, int.MaxValue)]
+        public int AvailablePortions { get; set; }
+    }
+}

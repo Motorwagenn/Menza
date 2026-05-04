@@ -27,8 +27,16 @@ else
         .WaitFor(database);
 }
 
-builder.AddProject<Projects.UTB_Minute_WebApi>("utb-minute-webapi")
-    .WithReference(database)
-    .WaitFor(database);
+var webapi = builder.AddProject<Projects.UTB_Minute_WebApi>("utb-minute-webapi")
+                .WithReference(database)
+                .WaitFor(database);
+
+var adminClient = builder.AddProject<Projects.UTB_Minute_AdminClient>("adminclient")
+    .WithReference(webapi)
+    .WaitFor(webapi);
+
+var canteenClient = builder.AddProject<Projects.UTB_Minute_CanteenClient>("canteenclient")
+    .WithReference(webapi)
+    .WaitFor(webapi);
 
 builder.Build().Run();
