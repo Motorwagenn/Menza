@@ -1,11 +1,11 @@
 <Solution>
-  <Project Path="Minute.ServiceDefaults/Minute.ServiceDefaults.csproj" />
   <Project Path="UTB.Minute.AdminClient/UTB.Minute.AdminClient.csproj" />
   <Project Path="UTB.Minute.AppHost/UTB.Minute.AppHost.csproj" />
-  <Project Path="UTB.Minute.CanteenClient/UTB.Minute.CanteenClient.csproj" />
-  <Project Path="UTB.Minute.Contracts/UTB.Minute.Contracts.csproj" Id="45ec46e1-a91f-4bb7-a2eb-4ebdca903446" />
+  <Project Path="Minute.ServiceDefaults/Minute.ServiceDefaults.csproj" />
   <Project Path="UTB.Minute.Db/UTB.Minute.Db.csproj" />
   <Project Path="UTB.Minute.DbManager/UTB.Minute.DbManager.csproj" />
+  <Project Path="UTB.Minute.CanteenClient/UTB.Minute.CanteenClient.csproj" />
+  <Project Path="UTB.Minute.Contracts/UTB.Minute.Contracts.csproj" Id="45ec46e1-a91f-4bb7-a2eb-4ebdca903446" />
   <Project Path="UTB.Minute.WebApi.Tests/UTB.Minute.WebApi.Tests.csproj" Id="4a30a42f-58d2-47d0-b41d-4079c67ec277" />
   <Project Path="UTB.Minute.WebApi/UTB.Minute.WebApi.csproj" />
 </Solution>

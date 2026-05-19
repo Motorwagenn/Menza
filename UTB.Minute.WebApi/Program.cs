@@ -6,12 +6,17 @@ using UTB.Minute.Contracts.Menu;
 using UTB.Minute.Contracts.Orders;
 using UTB.Minute.Db;
 using UTB.Minute.Db.Entities;
+using UTB.Minute.WebApi.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
 builder.AddSqlServerDbContext<MinuteDbContext>("database");
+
+// sse
+builder.Services.AddSingleton<OrderSseService>();
 
 var app = builder.Build();
 
@@ -39,6 +44,11 @@ app.MapPost("/menu", MenuEndpoints.CreateMenuItem);
 app.MapGet("/menu/{id}", MenuEndpoints.GetMenuItem);
 app.MapPut("/menu/{id}", MenuEndpoints.UpdateMenuItem);
 app.MapDelete("/menu/{id}", MenuEndpoints.DeleteMenuItem);
+
+app.MapGet("/orders/stream", (OrderSseService sse, CancellationToken ct) =>
+{
+    return TypedResults.ServerSentEvents(sse.Stream(ct));
+}).AllowAnonymous();
 
 
 app.Run();
@@ -178,7 +188,7 @@ public static class OrderEndpoints
     public static async Task<Results<Ok<OrderDto>, NotFound>> UpdateOrderStatus(
     int id,
     UpdateOrderStatusDto dto,
-    MinuteDbContext context)
+    MinuteDbContext context, OrderSseService sse)
     {
         var order = await context.Orders
             .Include(o => o.MenuItem)
@@ -191,6 +201,9 @@ public static class OrderEndpoints
         order.Status = dto.Status;
 
         await context.SaveChangesAsync();
+
+        //sse
+        await sse.SendAsync(new UpdateOrderStatusDto(order.Status));
 
         var result = new OrderDto(
             order.Id,

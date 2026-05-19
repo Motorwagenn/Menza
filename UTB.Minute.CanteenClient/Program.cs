@@ -10,6 +10,7 @@ builder.Services.AddHttpClient<CanteenService>(c => c.BaseAddress = new Uri("htt
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
