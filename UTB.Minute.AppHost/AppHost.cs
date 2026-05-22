@@ -12,6 +12,8 @@ if (builder.Environment.IsEnvironment("Testing"))
                  .WithContainerName("sql-testing");
 
     database = sql.AddDatabase("database");
+
+    
 }
 else
 {
@@ -25,9 +27,19 @@ else
         .WithReference(database)
         .WithHttpCommand("reset-db", "Reset")
         .WaitFor(database);
-}
+ }
+    var keycloak = builder.AddKeycloak("keycloak", 8080)
+                          .WithRealmImport("Realm")
+                          .WithHttpsEndpoint(port: 8443, targetPort: 8080, name: "https")
+                          .WithContainerName("utb-minute-keycloak")
+                          .WithDataVolume("utb-minute-keycloak-data")
+                          .WithLifetime(ContainerLifetime.Persistent);
 
-var webapi = builder.AddProject<Projects.UTB_Minute_WebApi>("utb-minute-webapi")
+
+
+
+
+    var webapi = builder.AddProject<Projects.UTB_Minute_WebApi>("utb-minute-webapi")
                 .WithReference(database)
                 .WaitFor(database);
 
@@ -38,5 +50,5 @@ var adminClient = builder.AddProject<Projects.UTB_Minute_AdminClient>("adminclie
 var canteenClient = builder.AddProject<Projects.UTB_Minute_CanteenClient>("canteenclient")
     .WithReference(webapi)
     .WaitFor(webapi);
-
+     
 builder.Build().Run();

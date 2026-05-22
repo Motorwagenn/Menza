@@ -1,0 +1,24 @@
+{
+  "realm" : "utb-minute",
+  "users" : [ {
+    "id" : "2a25f1cb-2b50-4f23-9d71-f0087820a931",
+    "username" : "michael",
+    "emailVerified" : true,
+    "enabled" : true,
+    "createdTimestamp" : 1779450920548,
+    "totp" : false,
+    "credentials" : [ {
+      "id" : "e619b877-8a61-4133-9e62-0135b16a9a12",
+      "type" : "password",
+      "userLabel" : "My password",
+      "createdDate" : 1779450940443,
+      "secretData" : "{\"value\":\"VqRYaENOMbxQXoJ9Sl4xDf59y+Pe9prtFu8ONwjtaVk=\",\"salt\":\"v19aMU1kuXay6cgkKSprgw==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "canteen-admin", "default-roles-utb-minute" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  } ]
+}

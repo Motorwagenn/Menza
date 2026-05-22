@@ -18,9 +18,28 @@ builder.AddSqlServerDbContext<MinuteDbContext>("database");
 // sse
 builder.Services.AddSingleton<OrderSseService>();
 
+builder.Services.AddAuthentication()
+    .AddKeycloakJwtBearer(
+        serviceName: "keycloak",
+        realm: "utb-minute",
+        options =>
+        {
+            options.Audience = "utb-minute-webapi";
+            options.RequireHttpsMetadata = false; 
+        }
+    );
+
+builder.Services.AddAuthorization();
+
+
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
+
+//keycloak auth
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Configure the HTTP request pipeline.
 
