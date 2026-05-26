@@ -13,7 +13,12 @@ if (builder.Environment.IsEnvironment("Testing"))
 
     database = sql.AddDatabase("database");
 
-    
+    var keycloak = builder.AddKeycloak("keycloak", 8080)
+                          .WithRealmImport("Realm")
+                          .WithHttpsEndpoint(port: 8443, targetPort: 8080, name: "https")
+                          .WithContainerName("utb-minute-keycloak-testing");
+                      
+
 }
 else
 {
@@ -27,13 +32,15 @@ else
         .WithReference(database)
         .WithHttpCommand("reset-db", "Reset")
         .WaitFor(database);
- }
+
     var keycloak = builder.AddKeycloak("keycloak", 8080)
                           .WithRealmImport("Realm")
                           .WithHttpsEndpoint(port: 8443, targetPort: 8080, name: "https")
                           .WithContainerName("utb-minute-keycloak")
                           .WithDataVolume("utb-minute-keycloak-data")
                           .WithLifetime(ContainerLifetime.Persistent);
+}
+    
 
 
 
