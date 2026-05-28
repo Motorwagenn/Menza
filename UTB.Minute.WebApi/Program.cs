@@ -54,9 +54,9 @@ app.MapPut("/meals/{id}", MealEndpoints.UpdateMeal);
 app.MapDelete("/meals/{id}", MealEndpoints.DeactivateMeal);
 //endopints orders 
 app.MapPost("/orders", OrderEndpoints.CreateOrder);
-app.MapGet("/orders", OrderEndpoints.GetOrders);
-app.MapPut("/orders/{id}/status", OrderEndpoints.UpdateOrderStatus);
-app.MapGet("/orders/{id}", OrderEndpoints.GetOrder);
+app.MapGet("/orders", OrderEndpoints.GetOrders).RequireAuthorization(pb => pb.RequireRole("cook")); ;
+app.MapPut("/orders/{id}/status", OrderEndpoints.UpdateOrderStatus).RequireAuthorization(pb => pb.RequireRole("cook")); ;
+app.MapGet("/orders/{id}", OrderEndpoints.GetOrder).RequireAuthorization(pb => pb.RequireRole("cook")); ;
 //endpoints menu
 app.MapGet("/menu", MenuEndpoints.GetMenuItems);
 app.MapPost("/menu", MenuEndpoints.CreateMenuItem);

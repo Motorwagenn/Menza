@@ -4,6 +4,8 @@
 @using UTB.Minute.CanteenClient
 @using Microsoft.AspNetCore.Components.Authorization
 @inject CanteenService CanteenService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 <AuthorizeView Roles="cook">
 <Authorized>
@@ -81,12 +83,27 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && !loaded)
+        if (!firstRender || loaded)
         {
-            loaded = true;
-            await LoadOrders();
-            StateHasChanged();
+            return;
         }
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated != true)
+        {
+            return;
+        }
+
+        if (!user.IsInRole("cook"))
+        {
+            return;
+        }
+
+        loaded = true;
+        await LoadOrders();
+        StateHasChanged();
     }
 
     private async Task LoadOrders()

@@ -10,9 +10,13 @@ using UTB.Minute.CanteenClient.Components;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddTransient<UserAccessTokenHandler>();
 
 builder.Services.AddHttpClient<CanteenService>(c =>
-    c.BaseAddress = new Uri("https://utb-minute-webapi"));
+    c.BaseAddress = new Uri("https://utb-minute-webapi"))
+    .AddHttpMessageHandler<UserAccessTokenHandler>(); ;
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -50,13 +54,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddCascadingAuthenticationState();
 
-//builder.Services.AddOpenIdConnectAccessTokenManagement(options =>
-//{
-//    options.RefreshBeforeExpiration = TimeSpan.FromSeconds(30);
-//});
 
-//builder.Services.AddUserAccessTokenHttpClient<CanteenService>(
-  //configureClient: (_, c) => c.BaseAddress = new Uri("https://utb-minute-webapi"));
 
 
 var app = builder.Build();
