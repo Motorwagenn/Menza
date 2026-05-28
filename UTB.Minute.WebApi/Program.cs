@@ -46,12 +46,12 @@ app.UseAuthorization();
 app.UseHttpsRedirection();
 
 //endpoints meal managment
-app.MapPost("/meals", MealEndpoints.CreateMeal);
+app.MapPost("/meals", MealEndpoints.CreateMeal).RequireAuthorization(pb => pb.RequireRole("canteen-admin"));
 app.MapGet("/meals", MealEndpoints.GetMeals);
 app.MapGet("/meals/{id}", MealEndpoints.GetMeal);
 app.MapGet("/meals/active", MealEndpoints.GetActiveMeals);
-app.MapPut("/meals/{id}", MealEndpoints.UpdateMeal);
-app.MapDelete("/meals/{id}", MealEndpoints.DeactivateMeal);
+app.MapPut("/meals/{id}", MealEndpoints.UpdateMeal).RequireAuthorization(pb => pb.RequireRole("canteen-admin"));
+app.MapDelete("/meals/{id}", MealEndpoints.DeactivateMeal).RequireAuthorization(pb => pb.RequireRole("canteen-admin"));
 //endopints orders 
 app.MapPost("/orders", OrderEndpoints.CreateOrder);
 app.MapGet("/orders", OrderEndpoints.GetOrders).RequireAuthorization(pb => pb.RequireRole("cook")); ;
@@ -59,10 +59,10 @@ app.MapPut("/orders/{id}/status", OrderEndpoints.UpdateOrderStatus).RequireAutho
 app.MapGet("/orders/{id}", OrderEndpoints.GetOrder).RequireAuthorization(pb => pb.RequireRole("cook")); ;
 //endpoints menu
 app.MapGet("/menu", MenuEndpoints.GetMenuItems);
-app.MapPost("/menu", MenuEndpoints.CreateMenuItem);
+app.MapPost("/menu", MenuEndpoints.CreateMenuItem).RequireAuthorization(pb => pb.RequireRole("canteen-admin"));
 app.MapGet("/menu/{id}", MenuEndpoints.GetMenuItem);
-app.MapPut("/menu/{id}", MenuEndpoints.UpdateMenuItem);
-app.MapDelete("/menu/{id}", MenuEndpoints.DeleteMenuItem);
+app.MapPut("/menu/{id}", MenuEndpoints.UpdateMenuItem).RequireAuthorization(pb => pb.RequireRole("canteen-admin"));
+app.MapDelete("/menu/{id}", MenuEndpoints.DeleteMenuItem).RequireAuthorization(pb => pb.RequireRole("canteen-admin"));
 
 app.MapGet("/orders/stream", (OrderSseService sse, CancellationToken ct) =>
 {
