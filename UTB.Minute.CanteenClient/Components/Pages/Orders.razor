@@ -2,10 +2,13 @@
 @using UTB.Minute.Contracts.Orders
 @using UTB.Minute.Contracts.Enums
 @using UTB.Minute.CanteenClient
+@using Microsoft.AspNetCore.Components.Authorization
 @inject CanteenService CanteenService
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
-
+<AuthorizeView Roles="cook">
+<Authorized>
 <h3>Orders</h3>
+        
 
 @if (orders is null)
 {
@@ -13,10 +16,25 @@
 }
 else if (!orders.Any())
 {
+            <p>Welcome back @context.User.Identity?.Name!</p>
+            <form action="/logout" method="post" style="display:inline">
+                <AntiforgeryToken />
+                <button type="submit" class="btn btn-link p-0">
+                    Logout
+                </button>
+            </form>
+
     <p>No active orders.</p>
 }
 else
 {
+            <p>Welcome back @context.User.Identity?.Name!</p>
+            <form action="/logout" method="post" style="display:inline">
+                <AntiforgeryToken />
+                <button type="submit" class="btn btn-link p-0">
+                    Logout
+                </button>
+            </form>
     <table class="table">
         <thead>
             <tr>
@@ -51,13 +69,24 @@ else
         </tbody>
     </table>
 }
+</Authorized>
+    <NotAuthorized>
+        <p><a href="/login?returnUrl=/orders" data-enhance-nav="false" >Log in</a> please.</p>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     private OrderDto[]? orders;
+    private bool loaded;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await LoadOrders();
+        if (firstRender && !loaded)
+        {
+            loaded = true;
+            await LoadOrders();
+            StateHasChanged();
+        }
     }
 
     private async Task LoadOrders()

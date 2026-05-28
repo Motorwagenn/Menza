@@ -63,9 +63,25 @@
       "containerId" : "266f96e5-af50-4ecc-847c-06f038ec7ab8",
       "attributes" : { }
     }, {
+      "id" : "7677f678-7f4d-49ac-9427-dab17b148905",
+      "name" : "student",
+      "description" : "can order food from menu",
+      "composite" : false,
+      "clientRole" : false,
+      "containerId" : "266f96e5-af50-4ecc-847c-06f038ec7ab8",
+      "attributes" : { }
+    }, {
       "id" : "f984a444-3b29-4bcb-992c-b554f4c32b18",
       "name" : "offline_access",
       "description" : "${role_offline-access}",
+      "composite" : false,
+      "clientRole" : false,
+      "containerId" : "266f96e5-af50-4ecc-847c-06f038ec7ab8",
+      "attributes" : { }
+    }, {
+      "id" : "1122a5d7-ea3c-419f-ae06-fb35c474da17",
+      "name" : "cook",
+      "description" : "can manage orders",
       "composite" : false,
       "clientRole" : false,
       "containerId" : "266f96e5-af50-4ecc-847c-06f038ec7ab8",
@@ -653,7 +669,7 @@
     "alwaysDisplayInConsole" : false,
     "clientAuthenticatorType" : "client-secret",
     "secret" : "8r9DEYRZaEnPUmZZFNfIyWAKa0LUzWon",
-    "redirectUris" : [ "ttps://localhost:7142/signin-oidc" ],
+    "redirectUris" : [ "https://localhost:7142/signin-oidc" ],
     "webOrigins" : [ "https://localhost:7142" ],
     "notBefore" : 0,
     "bearerOnly" : false,
@@ -667,12 +683,15 @@
     "protocol" : "openid-connect",
     "attributes" : {
       "realm_client" : "false",
+      "logout.confirmation.enabled" : "false",
       "oidc.ciba.grant.enabled" : "false",
       "client.secret.creation.time" : "1779450607",
       "backchannel.logout.session.required" : "true",
       "standard.token.exchange.enabled" : "false",
       "post.logout.redirect.uris" : "https://localhost:7142/signout-callback-oidc",
+      "frontchannel.logout.session.required" : "true",
       "oauth2.device.authorization.grant.enabled" : "false",
+      "display.on.consent.screen" : "false",
       "backchannel.logout.revoke.offline.tokens" : "false",
       "dpop.bound.access.tokens" : "false"
     },
