@@ -95,7 +95,7 @@ public static class MealEndpoints
     public static async Task<Ok<List<MealDto>>> GetMeals(MinuteDbContext context)
     {
         var meals = await context.Meals
-            .Select(m => new MealDto(m.Id, m.Name, m.Description, m.IsActive))
+            .Select(m => new MealDto(m.Id, m.Name, m.Description ?? string.Empty, m.IsActive))
             .ToListAsync();
 
         return TypedResults.Ok(meals);
@@ -131,7 +131,7 @@ public static class MealEndpoints
         if (meal == null)
             return TypedResults.NotFound();
 
-        var result = new MealDto(meal.Id, meal.Name, meal.Description, meal.IsActive);
+        var result = new MealDto(meal.Id, meal.Name, meal.Description ?? string.Empty, meal.IsActive);
 
         return TypedResults.Ok(result);
     }
@@ -139,7 +139,7 @@ public static class MealEndpoints
     {
         var meals = await context.Meals
             .Where(m => m.IsActive)
-            .Select(m => new MealDto(m.Id, m.Name, m.Description, m.IsActive))
+            .Select(m => new MealDto(m.Id, m.Name, m.Description ?? string.Empty, m.IsActive))
             .ToListAsync();
 
         return TypedResults.Ok(meals);
