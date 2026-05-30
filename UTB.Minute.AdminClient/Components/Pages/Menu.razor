@@ -157,7 +157,7 @@
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
-        if (user.Identity?.IsAuthenticated != true || !user.IsInRole("admin"))
+        if (user.Identity?.IsAuthenticated != true || !user.IsInRole("canteen-admin"))
         {
             return;
         }
