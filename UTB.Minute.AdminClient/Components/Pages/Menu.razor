@@ -7,6 +7,23 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 
+<AuthorizeView Roles="cook">
+    <Authorized>
+
+        <div class="alert alert-warning">
+            Nedostatečná role.
+        </div>
+
+        <form action="/logout" method="post" style="display:inline">
+            <AntiforgeryToken />
+            <button type="submit" class="btn btn-link p-0">
+                Logout
+            </button>
+        </form>
+    </Authorized>
+    
+</AuthorizeView>
+
 <AuthorizeView Roles="canteen-admin">
     <Authorized>
         <h3>Menu</h3>
@@ -108,6 +125,10 @@
         }
     </Authorized>
 
+    
+</AuthorizeView>
+
+<AuthorizeView>
     <NotAuthorized>
         <p><a href="/login?returnUrl=/menu" data-enhance-nav="false">Log in</a> please.</p>
     </NotAuthorized>
