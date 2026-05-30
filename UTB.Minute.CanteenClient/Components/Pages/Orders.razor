@@ -4,13 +4,22 @@
 @using UTB.Minute.CanteenClient
 @using Microsoft.AspNetCore.Components.Authorization
 @inject CanteenService CanteenService
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject NavigationManager NavigationManager
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
-<AuthorizeView Roles="cook">
-<Authorized>
+
 <h3>Orders</h3>
-        
+
+<AuthorizeView Roles="cook">
+    <Authorized>
+        <p>Welcome back @context.User.Identity?.Name!</p>
+        <form action="/logout" method="post" style="display:inline">
+            <AntiforgeryToken />
+            <button type="submit" class="btn btn-link p-0">Logout</button>
+        </form>
+    </Authorized>
+    <NotAuthorized>
+        <p><a href="/login?returnUrl=/orders" data-enhance-nav="false">Log in</a></p>
+    </NotAuthorized>
+</AuthorizeView>
 
 @if (orders is null)
 {
@@ -18,25 +27,10 @@
 }
 else if (!orders.Any())
 {
-            <p>Welcome back @context.User.Identity?.Name!</p>
-            <form action="/logout" method="post" style="display:inline">
-                <AntiforgeryToken />
-                <button type="submit" class="btn btn-link p-0">
-                    Logout
-                </button>
-            </form>
-
     <p>No active orders.</p>
 }
 else
 {
-            <p>Welcome back @context.User.Identity?.Name!</p>
-            <form action="/logout" method="post" style="display:inline">
-                <AntiforgeryToken />
-                <button type="submit" class="btn btn-link p-0">
-                    Logout
-                </button>
-            </form>
     <table class="table">
         <thead>
             <tr>
@@ -44,7 +38,11 @@ else
                 <th>Meal</th>
                 <th>Status</th>
                 <th>Created At</th>
-                <th>Actions</th>
+                <AuthorizeView Roles="cook">
+                    <Authorized>
+                        <th>Actions</th>
+                    </Authorized>
+                </AuthorizeView>
             </tr>
         </thead>
         <tbody>
@@ -56,54 +54,32 @@ else
                     <td>@order.Status</td>
                     <td>@order.CreatedAt.ToLocalTime().ToString("g")</td>
                     <td>
-                        @if (order.Status == OrderStatus.Preparing)
-                        {
-                            <button class="btn btn-sm btn-success me-1" @onclick="() => SetStatus(order.Id, OrderStatus.Ready)">Ready</button>
-                            <button class="btn btn-sm btn-danger me-1" @onclick="() => SetStatus(order.Id, OrderStatus.Cancelled)">Cancel</button>
-                        }
-                        @if (order.Status == OrderStatus.Ready || order.Status == OrderStatus.Cancelled)
-                        {
-                            <button class="btn btn-sm btn-secondary" @onclick="() => SetStatus(order.Id, OrderStatus.Completed)">Complete</button>
-                        }
+                        <AuthorizeView Roles="cook">
+                            <Authorized>
+                                @if (order.Status == OrderStatus.Preparing)
+                                {
+                                    <button class="btn btn-sm btn-success me-1" @onclick="() => SetStatus(order.Id, OrderStatus.Ready)">Ready</button>
+                                    <button class="btn btn-sm btn-danger me-1" @onclick="() => SetStatus(order.Id, OrderStatus.Cancelled)">Cancel</button>
+                                }
+                                @if (order.Status == OrderStatus.Ready || order.Status == OrderStatus.Cancelled)
+                                {
+                                    <button class="btn btn-sm btn-secondary" @onclick="() => SetStatus(order.Id, OrderStatus.Completed)">Complete</button>
+                                }
+                            </Authorized>
+                        </AuthorizeView>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
 }
-</Authorized>
-    <NotAuthorized>
-        <p><a href="/login?returnUrl=/orders" data-enhance-nav="false" >Log in</a> please.</p>
-    </NotAuthorized>
-</AuthorizeView>
 
 @code {
     private OrderDto[]? orders;
-    private bool loaded;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (!firstRender || loaded)
-        {
-            return;
-        }
-
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity?.IsAuthenticated != true)
-        {
-            return;
-        }
-
-        if (!user.IsInRole("cook"))
-        {
-            return;
-        }
-
-        loaded = true;
         await LoadOrders();
-        StateHasChanged();
     }
 
     private async Task LoadOrders()
