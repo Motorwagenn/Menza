@@ -1,0 +1,62 @@
+﻿@page "/notifications"
+@implements IAsyncDisposable
+@using UTB.Minute.Contracts.Orders
+@using UTB.Minute.CanteenClient
+@inject CanteenService CanteenService
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<h3>Live Order Updates</h3>
+
+@if (!_notifications.Any())
+{
+    <p>Waiting for updates...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Order #</th>
+                <th>Meal</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var n in _notifications)
+            {
+                <tr>
+                    <td>@n.OrderId</td>
+                    <td>@n.MealName</td>
+                    <td>@n.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private readonly List<OrderNotificationDto> _notifications = [];
+    private CancellationTokenSource _cts = new();
+
+    protected override void OnInitialized()
+    {
+        _ = ListenAsync();
+    }
+
+    private async Task ListenAsync()
+    {
+        try
+        {
+            await foreach (var update in CanteenService.StreamOrderUpdatesAsync(_cts.Token))
+            {
+                _notifications.Insert(0, update);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (IOException) { }
+        catch (Exception) { }
+    }
+
+    public async ValueTask DisposeAsync() => _cts.Cancel();
+}

@@ -1,9 +1,9 @@
-using UTB.Minute.AdminClient.Components;
-using UTB.Minute.AdminClient;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using UTB.Minute.AdminClient;
+using UTB.Minute.AdminClient.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using UTB.Minute.Contracts.Enums;
@@ -17,6 +18,7 @@ builder.AddSqlServerDbContext<MinuteDbContext>("database");
 
 // sse
 builder.Services.AddSingleton<OrderSseService>();
+
 
 builder.Services.AddAuthentication()
     .AddKeycloakJwtBearer(
@@ -150,7 +152,7 @@ public static class OrderEndpoints
 {
     public static async Task<Results<Created<OrderDto>, NotFound, BadRequest>> CreateOrder(
     CreateOrderDto dto,
-    MinuteDbContext context)
+    MinuteDbContext context, OrderSseService sse)
     {
         var menuItem = await context.MenuItems
             .Include(m => m.Meal)
@@ -174,6 +176,8 @@ public static class OrderEndpoints
 
         context.Orders.Add(order);
         await context.SaveChangesAsync();
+        //sse
+        await sse.SendAsync(new OrderNotificationDto(order.Id, menuItem.Meal.Name, order.Status));
 
         var result = new OrderDto(
             order.Id,
@@ -222,7 +226,7 @@ public static class OrderEndpoints
         await context.SaveChangesAsync();
 
         //sse
-        await sse.SendAsync(new UpdateOrderStatusDto(order.Status));
+        await sse.SendAsync(new OrderNotificationDto(order.Id, order.MenuItem.Meal.Name, order.Status));
 
         var result = new OrderDto(
             order.Id,

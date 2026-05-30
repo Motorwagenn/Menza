@@ -8,23 +8,21 @@ namespace UTB.Minute.WebApi.Services
 {
     public class OrderSseService
     {
-        private readonly ConcurrentDictionary<Guid, Channel<SseItem<UpdateOrderStatusDto>>> clients = [];
+        private readonly ConcurrentDictionary<Guid, Channel<SseItem<OrderNotificationDto>>> _clients = [];
 
-        public async Task SendAsync(UpdateOrderStatusDto update)
+        public async Task SendAsync(OrderNotificationDto notification)
         {
-            foreach (var client in clients.Values)
-            {
-                await client.Writer.WriteAsync(new SseItem<UpdateOrderStatusDto>(update, "order"));
-            }
+            foreach (var client in _clients.Values)
+                await client.Writer.WriteAsync(new SseItem<OrderNotificationDto>(notification, "order"));
         }
-        public IAsyncEnumerable<SseItem<UpdateOrderStatusDto>>
-            Stream(CancellationToken ct)
+
+        public IAsyncEnumerable<SseItem<OrderNotificationDto>> Stream(CancellationToken ct)
         {
             var id = Guid.NewGuid();
-            var channel = Channel.CreateUnbounded<SseItem<UpdateOrderStatusDto>>();
-            clients.TryAdd(id, channel);
-            ct.Register(() => clients.TryRemove(id, out _));
+            var channel = Channel.CreateUnbounded<SseItem<OrderNotificationDto>>();
+            _clients.TryAdd(id, channel);
+            ct.Register(() => _clients.TryRemove(id, out _));
             return channel.Reader.ReadAllAsync(ct);
         }
-    }   
+    }
 }

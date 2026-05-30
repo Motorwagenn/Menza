@@ -28,7 +28,13 @@ public class UserAccessTokenHandler : DelegatingHandler
                     new AuthenticationHeaderValue("Bearer", accessToken);
             }
         }
-
-        return await base.SendAsync(request, cancellationToken);
+        try
+        {
+            return await base.SendAsync(request, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            return new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable);
+        }
     }
 }

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Duende.AccessTokenManagement.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -53,6 +54,8 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddOpenIdConnectAccessTokenManagement();
+
 
 
 
