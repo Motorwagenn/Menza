@@ -26,7 +26,7 @@
     "firstName" : "anna",
     "lastName" : "idková",
     "email" : "anna@seznam.cz",
-    "emailVerified" : false,
+    "emailVerified" : true,
     "enabled" : true,
     "createdTimestamp" : 1779980078709,
     "totp" : false,
@@ -46,6 +46,9 @@
   }, {
     "id" : "2a25f1cb-2b50-4f23-9d71-f0087820a931",
     "username" : "michael",
+    "firstName" : "michal",
+    "lastName" : "moudrý",
+    "email" : "michal@email.cz",
     "emailVerified" : true,
     "enabled" : true,
     "createdTimestamp" : 1779450920548,
