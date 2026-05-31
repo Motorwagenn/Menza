@@ -104,3 +104,8 @@ Tests use `Aspire.Hosting.Testing` to start the full application stack automatic
 * `POST /orders` — Create an order, decrements available portions (public)
 * `PUT /orders/{id}/status` — Update order status (`cook` or `canteen-admin`)
 * `GET /orders/stream` — SSE stream of order notifications (public)
+
+## Known Issues
+
+* Being logged in on one client causes an error when attempting to log in on the other client.
+  **Temporary fix:** Always log out of the current client before switching to the other one.
