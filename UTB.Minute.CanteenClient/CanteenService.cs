@@ -16,9 +16,10 @@ namespace UTB.Minute.CanteenClient
             return items;
         }
 
-        public async Task CreateOrderAsync(CreateOrderDto dto)
+        public async Task<bool> CreateOrderAsync(CreateOrderDto dto)
         {
-            await httpClient.PostAsJsonAsync("/orders", dto);
+            var response = await httpClient.PostAsJsonAsync("/orders", dto);
+            return response.IsSuccessStatusCode;
         }
 
         public async Task<OrderDto[]?> GetOrdersAsync()

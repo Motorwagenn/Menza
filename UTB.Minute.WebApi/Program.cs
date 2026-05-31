@@ -175,7 +175,16 @@ public static class OrderEndpoints
         };
 
         context.Orders.Add(order);
-        await context.SaveChangesAsync();
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return TypedResults.BadRequest();
+        }
+
         //sse
         await sse.SendAsync(new OrderNotificationDto(order.Id, menuItem.Meal.Name, order.Status));
 

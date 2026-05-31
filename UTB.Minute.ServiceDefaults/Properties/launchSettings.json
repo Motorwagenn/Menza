@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Minute.ServiceDefaults": {
+    "UTB.Minute.ServiceDefaults": {
       "commandName": "Project"
     },
     "Profil 1": {

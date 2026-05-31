@@ -46,7 +46,7 @@ else
 
 @if (message is not null)
 {
-    <div class="alert alert-info mt-2">@message</div>
+    <div class="alert @(message!.StartsWith("Could") ? "alert-danger" : "alert-info") mt-2">@message</div>
 }
 
 @code {
@@ -68,8 +68,8 @@ else
     private async Task Order(int menuItemId)
     {
         message = null;
-        await CanteenService.CreateOrderAsync(new CreateOrderDto(menuItemId));
-        message = "Order placed successfully.";
+        bool success = await CanteenService.CreateOrderAsync(new CreateOrderDto(menuItemId));
+        message = success ? "Order placed successfully." : "Could not place order. Item may be sold out.";
         await LoadMenu();
     }
 }
