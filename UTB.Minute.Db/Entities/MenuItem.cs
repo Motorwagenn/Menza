@@ -9,6 +9,8 @@
 
         public int MealId { get; set; }
         public Meal Meal { get; set; }
-        
+
+        public byte[] RowVersion { get; set; } = [];
+
     }
 }

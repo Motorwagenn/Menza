@@ -1,33 +1,27 @@
-﻿@page "/meals"
+@page "/meals"
 @using UTB.Minute.Contracts.Meals
-@using Microsoft.AspNetCore.Components.Authorization
 @using UTB.Minute.AdminClient
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Authorization
 @inject AdminService AdminService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 <AuthorizeView Roles="cook">
     <Authorized>
-
-        <div class="alert alert-warning">
-            Nedostatečná role.
-        </div>
-
+        <div class="alert alert-warning">You do not have permission to access this page.</div>
         <form action="/logout" method="post" style="display:inline">
             <AntiforgeryToken />
-            <button type="submit" class="btn btn-link p-0">
-                Logout
-            </button>
+            <button type="submit" class="btn btn-link p-0">Logout</button>
         </form>
     </Authorized>
-
 </AuthorizeView>
 
 <AuthorizeView Roles="canteen-admin">
-    <Authorized>
+    <Authorized Context="auth">
         <h3>Meals</h3>
 
-        <p>Welcome back @context.User.Identity?.Name!</p>
+        <p>Welcome back @auth.User.Identity?.Name!</p>
 
         <form action="/logout" method="post" style="display:inline">
             <AntiforgeryToken />
@@ -36,17 +30,7 @@
 
         <hr />
 
-        <h5>Create meal</h5>
-
-        <div class="mb-2">
-            <input class="form-control" placeholder="Name" @bind="newMealName" />
-        </div>
-
-        <div class="mb-2">
-            <input class="form-control" placeholder="Description" @bind="newMealDescription" />
-        </div>
-
-        <button class="btn btn-primary mb-3" @onclick="CreateMeal">Create</button>
+        <button class="btn btn-primary mb-3" @onclick="StartCreate">+ New Meal</button>
 
         @if (meals is null)
         {
@@ -58,6 +42,31 @@
         }
         else
         {
+            @if (editingMeal is not null)
+            {
+                <div class="card p-3 mb-3">
+                    <h5>@(editingMeal.Id == 0 ? "Create Meal" : "Edit Meal")</h5>
+                    <EditForm Model="editingMeal" OnValidSubmit="SaveMeal">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="mb-2">
+                            <label>Name</label>
+                            <InputText class="form-control" @bind-Value="editingMeal!.Name" />
+                        </div>
+                        <div class="mb-2">
+                            <label>Description</label>
+                            <InputText class="form-control" @bind-Value="editingMeal!.Description" />
+                        </div>
+                        <div class="mb-2">
+                            <InputCheckbox @bind-Value="editingMeal!.IsActive" />
+                            <label>Active</label>
+                        </div>
+                        <button class="btn btn-success me-2">Save</button>
+                        <button type="button" class="btn btn-secondary" @onclick="() => editingMeal = null">Cancel</button>
+                    </EditForm>
+                </div>
+            }
+
             <table class="table">
                 <thead>
                     <tr>
@@ -73,25 +82,14 @@
                     {
                         <tr>
                             <td>@meal.Id</td>
+                            <td>@meal.Name</td>
+                            <td>@meal.Description</td>
+                            <td>@(meal.IsActive ? "Yes" : "No")</td>
                             <td>
-                                <input class="form-control" @bind="editNames[meal.Id]" />
-                            </td>
-                            <td>
-                                <input class="form-control" @bind="editDescriptions[meal.Id]" />
-                            </td>
-                            <td>@meal.IsActive</td>
-                            <td>
-                                <button class="btn btn-sm btn-success me-1"
-                                        @onclick="() => UpdateMeal(meal)">
-                                    Save
-                                </button>
-
+                                <button class="btn btn-sm btn-warning me-1" @onclick="() => StartEdit(meal)">Edit</button>
                                 @if (meal.IsActive)
                                 {
-                                    <button class="btn btn-sm btn-danger"
-                                            @onclick="() => DeactivateMeal(meal.Id)">
-                                        Deactivate
-                                    </button>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => Deactivate(meal.Id)">Deactivate</button>
                                 }
                             </td>
                         </tr>
@@ -101,39 +99,26 @@
         }
     </Authorized>
 
-   
-</AuthorizeView>
-
-<AuthorizeView>
     <NotAuthorized>
-        <p><a href="/login?returnUrl=/menu" data-enhance-nav="false">Log in</a> please.</p>
+        <p><a href="/login?returnUrl=/meals" data-enhance-nav="false">Log in</a> please.</p>
     </NotAuthorized>
 </AuthorizeView>
 
 @code {
     private MealDto[]? meals;
+    private MealEditModel? editingMeal;
     private bool loaded;
-
-    private string newMealName = string.Empty;
-    private string newMealDescription = string.Empty;
-
-    private readonly Dictionary<int, string> editNames = new();
-    private readonly Dictionary<int, string> editDescriptions = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender || loaded)
-        {
             return;
-        }
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
         if (user.Identity?.IsAuthenticated != true || !user.IsInRole("canteen-admin"))
-        {
             return;
-        }
 
         loaded = true;
         await LoadMeals();
@@ -143,53 +128,47 @@
     private async Task LoadMeals()
     {
         meals = await AdminService.GetMealsAsync();
-
-        editNames.Clear();
-        editDescriptions.Clear();
-
-        if (meals is null)
-        {
-            return;
-        }
-
-        foreach (var meal in meals)
-        {
-            editNames[meal.Id] = meal.Name;
-            editDescriptions[meal.Id] = meal.Description;
-        }
     }
 
-    private async Task CreateMeal()
+    private void StartCreate()
     {
-        if (string.IsNullOrWhiteSpace(newMealName))
-        {
-            return;
-        }
+        editingMeal = new MealEditModel();
+    }
 
-        await AdminService.CreateMealAsync(
-            new CreateMealDto(newMealName, newMealDescription));
+    private void StartEdit(MealDto meal)
+    {
+        editingMeal = new MealEditModel { Id = meal.Id, Name = meal.Name, Description = meal.Description, IsActive = meal.IsActive };
+    }
 
-        newMealName = string.Empty;
-        newMealDescription = string.Empty;
+    private async Task SaveMeal()
+    {
+        if (editingMeal is null) return;
 
+        if (editingMeal.Id == 0)
+            await AdminService.CreateMealAsync(new CreateMealDto(editingMeal.Name, editingMeal.Description));
+        else
+            await AdminService.UpdateMealAsync(editingMeal.Id, new UpdateMealDto(editingMeal.Name, editingMeal.Description, editingMeal.IsActive));
+
+        editingMeal = null;
         await LoadMeals();
     }
 
-    private async Task UpdateMeal(MealDto meal)
-    {
-        await AdminService.UpdateMealAsync(
-            meal.Id,
-            new UpdateMealDto(
-                editNames[meal.Id],
-                editDescriptions[meal.Id],
-                meal.IsActive));
-
-        await LoadMeals();
-    }
-
-    private async Task DeactivateMeal(int id)
+    private async Task Deactivate(int id)
     {
         await AdminService.DeactivateMealAsync(id);
         await LoadMeals();
+    }
+
+    private class MealEditModel
+    {
+        public int Id { get; set; }
+
+        [Required]
+        public string Name { get; set; } = "";
+
+        [Required]
+        public string Description { get; set; } = "";
+
+        public bool IsActive { get; set; } = true;
     }
 }

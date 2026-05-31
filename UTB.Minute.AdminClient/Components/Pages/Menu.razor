@@ -1,34 +1,28 @@
-﻿@page "/menu"
-@using UTB.Minute.Contracts.Meals
+@page "/menu"
 @using UTB.Minute.Contracts.Menu
-@using Microsoft.AspNetCore.Components.Authorization
+@using UTB.Minute.Contracts.Meals
 @using UTB.Minute.AdminClient
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Authorization
 @inject AdminService AdminService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 <AuthorizeView Roles="cook">
     <Authorized>
-
-        <div class="alert alert-warning">
-            Nedostatečná role.
-        </div>
-
+        <div class="alert alert-warning">You do not have permission to access this page.</div>
         <form action="/logout" method="post" style="display:inline">
             <AntiforgeryToken />
-            <button type="submit" class="btn btn-link p-0">
-                Logout
-            </button>
+            <button type="submit" class="btn btn-link p-0">Logout</button>
         </form>
     </Authorized>
-    
 </AuthorizeView>
 
 <AuthorizeView Roles="canteen-admin">
-    <Authorized>
+    <Authorized Context="auth">
         <h3>Menu</h3>
 
-        <p>Welcome back @context.User.Identity?.Name!</p>
+        <p>Welcome back @auth.User.Identity?.Name!</p>
 
         <form action="/logout" method="post" style="display:inline">
             <AntiforgeryToken />
@@ -37,33 +31,7 @@
 
         <hr />
 
-        <h5>Create menu item</h5>
-
-        <div class="mb-2">
-            <label>Date</label>
-            <input class="form-control" type="date" @bind="newMenuDate" />
-        </div>
-
-        <div class="mb-2">
-            <label>Meal</label>
-            <select class="form-control" @bind="newMealId">
-                <option value="0">-- select meal --</option>
-                @if (meals is not null)
-                {
-                    @foreach (var meal in meals.Where(m => m.IsActive))
-                    {
-                        <option value="@meal.Id">@meal.Name</option>
-                    }
-                }
-            </select>
-        </div>
-
-        <div class="mb-2">
-            <label>Available portions</label>
-            <input class="form-control" type="number" @bind="newAvailablePortions" />
-        </div>
-
-        <button class="btn btn-primary mb-3" @onclick="CreateMenuItem">Create</button>
+        <button class="btn btn-primary mb-3" @onclick="StartCreate">+ New Menu Item</button>
 
         @if (menuItems is null)
         {
@@ -75,6 +43,39 @@
         }
         else
         {
+            @if (editingItem is not null)
+            {
+                <div class="card p-3 mb-3">
+                    <h5>@(editingItem.Id == 0 ? "Create Menu Item" : "Edit Menu Item")</h5>
+                    <EditForm Model="editingItem" OnValidSubmit="SaveItem">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="mb-2">
+                            <label>Date</label>
+                            <InputDate class="form-control" @bind-Value="editingItem!.Date" />
+                        </div>
+                        <div class="mb-2">
+                            <label>Meal</label>
+                            <InputSelect class="form-control" @bind-Value="editingItem!.MealId">
+                                @if (meals is not null)
+                                {
+                                    @foreach (var meal in meals.Where(m => m.IsActive))
+                                    {
+                                        <option value="@meal.Id">@meal.Name</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="mb-2">
+                            <label>Portions Available</label>
+                            <InputNumber class="form-control" @bind-Value="editingItem!.AvailablePortions" />
+                        </div>
+                        <button class="btn btn-success me-2">Save</button>
+                        <button type="button" class="btn btn-secondary" @onclick="() => editingItem = null">Cancel</button>
+                    </EditForm>
+                </div>
+            }
+
             <table class="table">
                 <thead>
                     <tr>
@@ -90,33 +91,12 @@
                     {
                         <tr>
                             <td>@item.Id</td>
+                            <td>@item.Date.ToShortDateString()</td>
+                            <td>@item.MealName</td>
+                            <td>@item.AvailablePortions</td>
                             <td>
-                                <input class="form-control" type="date" @bind="editDates[item.Id]" />
-                            </td>
-                            <td>
-                                <select class="form-control" @bind="editMealIds[item.Id]">
-                                    @if (meals is not null)
-                                    {
-                                        @foreach (var meal in meals.Where(m => m.IsActive))
-                                        {
-                                            <option value="@meal.Id">@meal.Name</option>
-                                        }
-                                    }
-                                </select>
-                            </td>
-                            <td>
-                                <input class="form-control" type="number" @bind="editPortions[item.Id]" />
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-success me-1"
-                                        @onclick="() => UpdateMenuItem(item.Id)">
-                                    Save
-                                </button>
-
-                                <button class="btn btn-sm btn-danger"
-                                        @onclick="() => DeleteMenuItem(item.Id)">
-                                    Delete
-                                </button>
+                                <button class="btn btn-sm btn-warning me-1" @onclick="() => StartEdit(item)">Edit</button>
+                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteItem(item.Id)">Delete</button>
                             </td>
                         </tr>
                     }
@@ -125,42 +105,27 @@
         }
     </Authorized>
 
-    
-</AuthorizeView>
-
-<AuthorizeView>
     <NotAuthorized>
         <p><a href="/login?returnUrl=/menu" data-enhance-nav="false">Log in</a> please.</p>
     </NotAuthorized>
 </AuthorizeView>
 
 @code {
-    private MealDto[]? meals;
     private MenuItemDto[]? menuItems;
+    private MealDto[]? meals;
+    private MenuItemEditModel? editingItem;
     private bool loaded;
-
-    private DateOnly newMenuDate = DateOnly.FromDateTime(DateTime.Today);
-    private int newMealId;
-    private int newAvailablePortions = 10;
-
-    private readonly Dictionary<int, DateOnly> editDates = new();
-    private readonly Dictionary<int, int> editMealIds = new();
-    private readonly Dictionary<int, int> editPortions = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender || loaded)
-        {
             return;
-        }
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
         if (user.Identity?.IsAuthenticated != true || !user.IsInRole("canteen-admin"))
-        {
             return;
-        }
 
         loaded = true;
         await LoadData();
@@ -169,57 +134,54 @@
 
     private async Task LoadData()
     {
-        meals = await AdminService.GetMealsAsync();
         menuItems = await AdminService.GetMenuItemsAsync();
-
-        editDates.Clear();
-        editMealIds.Clear();
-        editPortions.Clear();
-
-        if (menuItems is null)
-        {
-            return;
-        }
-
-        foreach (var item in menuItems)
-        {
-            editDates[item.Id] = item.Date;
-            editMealIds[item.Id] = item.MealId;
-            editPortions[item.Id] = item.AvailablePortions;
-        }
+        meals = await AdminService.GetMealsAsync();
     }
 
-    private async Task CreateMenuItem()
+    private void StartCreate()
     {
-        if (newMealId <= 0)
+        editingItem = new MenuItemEditModel
         {
-            return;
-        }
+            Date = DateOnly.FromDateTime(DateTime.Today),
+            MealId = meals?.FirstOrDefault(m => m.IsActive)?.Id ?? 0
+        };
+    }
 
-        await AdminService.CreateMenuItemAsync(
-            new CreateMenuItemDto(
-                newMenuDate,
-                newMealId,
-                newAvailablePortions));
+    private void StartEdit(MenuItemDto item)
+    {
+        editingItem = new MenuItemEditModel { Id = item.Id, Date = item.Date, MealId = item.MealId, AvailablePortions = item.AvailablePortions };
+    }
 
+    private async Task SaveItem()
+    {
+        if (editingItem is null) return;
+
+        if (editingItem.Id == 0)
+            await AdminService.CreateMenuItemAsync(new CreateMenuItemDto(editingItem.Date, editingItem.MealId, editingItem.AvailablePortions));
+        else
+            await AdminService.UpdateMenuItemAsync(editingItem.Id, new UpdateMenuItemDto(editingItem.Date, editingItem.MealId, editingItem.AvailablePortions));
+
+        editingItem = null;
         await LoadData();
     }
 
-    private async Task UpdateMenuItem(int id)
-    {
-        await AdminService.UpdateMenuItemAsync(
-            id,
-            new UpdateMenuItemDto(
-                editDates[id],
-                editMealIds[id],
-                editPortions[id]));
-
-        await LoadData();
-    }
-
-    private async Task DeleteMenuItem(int id)
+    private async Task DeleteItem(int id)
     {
         await AdminService.DeleteMenuItemAsync(id);
         await LoadData();
+    }
+
+    private class MenuItemEditModel
+    {
+        public int Id { get; set; }
+
+        [Required]
+        public DateOnly Date { get; set; }
+
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a meal.")]
+        public int MealId { get; set; }
+
+        [Range(1, int.MaxValue)]
+        public int AvailablePortions { get; set; }
     }
 }

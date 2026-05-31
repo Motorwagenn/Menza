@@ -208,7 +208,7 @@ public static class OrderEndpoints
         return TypedResults.Ok(orders);
     }
 
-    public static async Task<Results<Ok<OrderDto>, NotFound>> UpdateOrderStatus(
+    public static async Task<Results<Ok<OrderDto>, NotFound, BadRequest>> UpdateOrderStatus(
     int id,
     UpdateOrderStatusDto dto,
     MinuteDbContext context, OrderSseService sse)
@@ -220,6 +220,18 @@ public static class OrderEndpoints
 
         if (order == null)
             return TypedResults.NotFound();
+
+        bool valid = (order.Status, dto.Status) switch
+        {
+            (OrderStatus.Preparing, OrderStatus.Ready) => true,
+            (OrderStatus.Preparing, OrderStatus.Cancelled) => true,
+            (OrderStatus.Ready, OrderStatus.Completed) => true,
+            (OrderStatus.Cancelled, OrderStatus.Completed) => true,
+            _ => false
+        };
+
+        if (!valid)
+            return TypedResults.BadRequest();
 
         order.Status = dto.Status;
 

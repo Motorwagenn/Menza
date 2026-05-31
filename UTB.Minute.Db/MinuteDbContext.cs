@@ -8,6 +8,12 @@ namespace UTB.Minute.Db
         public DbSet<Meal> Meals { get; set; }
         public DbSet<MenuItem> MenuItems { get; set; }
         public DbSet<Order> Orders { get; set; }
-    }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<MenuItem>()
+                .Property(m => m.RowVersion)
+                .IsRowVersion();
+        }
+    }
 }
