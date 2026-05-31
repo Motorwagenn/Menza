@@ -1,7 +1,6 @@
 ﻿using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using UTB.Minute.Contracts.Menu;
 using UTB.Minute.Contracts.Orders;
 
